@@ -43,7 +43,7 @@ export default function ScatterPlot({ data, theme }: { data: any[], theme?: stri
     svg.selectAll("*").remove();
     svg.attr("viewBox", `0 0 ${width} ${height}`);
 
-    let tooltip = d3.select("body").select(".d3-tooltip");
+    let tooltip: any = d3.select("body").select(".d3-tooltip");
     if (tooltip.empty()) {
       tooltip = d3.select("body").append("div").attr("class", "d3-tooltip");
     }

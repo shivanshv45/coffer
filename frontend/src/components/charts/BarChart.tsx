@@ -28,7 +28,7 @@ export default function BarChart({ data, theme }: { data: any[], theme?: string 
     svg.selectAll("*").remove();
 
     // Create Tooltip if it doesn't exist
-    let tooltip = d3.select("body").select(".d3-tooltip");
+    let tooltip: any = d3.select("body").select(".d3-tooltip");
     if (tooltip.empty()) {
       tooltip = d3.select("body").append("div").attr("class", "d3-tooltip");
     }
