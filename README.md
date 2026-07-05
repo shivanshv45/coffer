@@ -13,7 +13,8 @@ A data visualization dashboard built for intelligence and risk officers to deriv
 ## Tech Stack
 - **Backend:** Python FastAPI
 - **Frontend:** Next.js (React), D3.js (Visualizations)
-- **Database:** Supabase (A python seed script is provided, with graceful fallback to local JSON for instant development preview).
+- **Database:** MongoDB
+- **AI Integration:** Google Gemini API (for the Geopolitical Chat Analyst)
 
 ## Setup Instructions
 
@@ -24,18 +25,21 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 ```
-To run the database seeding script, create a `.env` in the `backend/` folder:
+To connect the database and AI, create a `.env` in the `backend/` folder:
 ```
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+MONGO_URI=your_mongodb_connection_string
+GEMINI_API_KEY=your_google_gemini_api_key
 ```
-Then run `python seed.py`.
+To seed the database with the initial dataset, run:
+```bash
+python seed.py
+```
 
-To run the API server:
+To run the local API server:
 ```bash
 uvicorn main:app --reload
 ```
-(Note: The backend gracefully falls back to reading `jsondata.json` directly if Supabase credentials are not provided.)
+*(Note: If `MONGO_URI` is not provided, the backend will gracefully fall back to reading `jsondata.json` directly).*
 
 ### 2. Frontend
 In a new terminal:
@@ -44,5 +48,8 @@ cd frontend
 npm install
 npm run dev
 ```
-
 Visit `http://localhost:3000` to interact with the dashboard.
+
+## Deployment Notes
+- **Frontend (Vercel):** Ensure `NEXT_PUBLIC_API_URL` is set in your Vercel Environment Variables to point to your live backend URL. 
+- **Backend (Railway/Render):** The backend includes a `Dockerfile` for easy containerized deployment. Ensure you add `MONGO_URI` and `GEMINI_API_KEY` to your production environment variables.
