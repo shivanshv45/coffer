@@ -32,7 +32,7 @@ export default function Chat({ filters, hasData }: { filters: any, hasData: bool
         .map(([k, v]) => `${k}: ${v}`)
         .join(', ');
 
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/chat`, { 
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://precious-love-production-11e2.up.railway.app'}/api/chat`, { 
         message: input,
         context: contextStr || "None"
       });

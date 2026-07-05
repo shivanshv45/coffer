@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   const fetchFilterOptions = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/filters`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'https://precious-love-production-11e2.up.railway.app'}/api/filters`);
       setFilterOptions(res.data);
     } catch (e) {
       console.error(e);
@@ -31,7 +31,7 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       const queryParams = new URLSearchParams(filters).toString();
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/data?${queryParams}`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'https://precious-love-production-11e2.up.railway.app'}/api/data?${queryParams}`);
       setData(res.data);
     } catch (e) {
       console.error(e);
