@@ -2,7 +2,7 @@ import os
 import json
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from supabase import create_client, Client
+from pymongo import MongoClient
 from pydantic import BaseModel
 from typing import List, Optional, Any, Dict
 from dotenv import load_dotenv
@@ -21,17 +21,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+MONGO_URI = os.environ.get("MONGO_URI")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY:
+db_collection = None
+if MONGO_URI:
     try:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("Supabase client initialized.")
+        client = MongoClient(MONGO_URI)
+        db_collection = client.blackcoffer.insights
+        print("MongoDB client initialized.")
     except Exception as e:
-        print(f"Error initializing Supabase: {e}")
+        print(f"Error initializing MongoDB: {e}")
 
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -56,21 +56,21 @@ async def get_data(
     source: Optional[str] = None,
     country: Optional[str] = None,
 ):
-    if supabase:
+    if db_collection is not None:
         try:
-            query = supabase.table("insights").select("*")
-            if end_year: query = query.eq("end_year", end_year)
-            if topic: query = query.eq("topic", topic)
-            if sector: query = query.eq("sector", sector)
-            if region: query = query.eq("region", region)
-            if pestle: query = query.eq("pestle", pestle)
-            if source: query = query.eq("source", source)
-            if country: query = query.eq("country", country)
+            query = {}
+            if end_year: query["end_year"] = end_year
+            if topic: query["topic"] = topic
+            if sector: query["sector"] = sector
+            if region: query["region"] = region
+            if pestle: query["pestle"] = pestle
+            if source: query["source"] = source
+            if country: query["country"] = country
             
-            response = query.execute()
-            return response.data
+            cursor = db_collection.find(query, {"_id": 0})
+            return list(cursor)
         except Exception as e:
-            print(f"Error fetching from Supabase: {e}")
+            print(f"Error fetching from MongoDB: {e}")
             
     filtered_data = local_data
     if end_year: filtered_data = [d for d in filtered_data if str(d.get("end_year")) == end_year]
@@ -85,6 +85,24 @@ async def get_data(
 
 @app.get("/api/filters")
 async def get_filter_options():
+    if db_collection is not None:
+        try:
+            filters = {
+                "end_year": db_collection.distinct("end_year"),
+                "topic": db_collection.distinct("topic"),
+                "sector": db_collection.distinct("sector"),
+                "region": db_collection.distinct("region"),
+                "pestle": db_collection.distinct("pestle"),
+                "source": db_collection.distinct("source"),
+                "country": db_collection.distinct("country"),
+            }
+            # Remove None/empty strings and sort
+            for k in filters:
+                filters[k] = sorted(list(set([str(x) for x in filters[k] if x])))
+            return filters
+        except Exception as e:
+            print(f"Error fetching filters from MongoDB: {e}")
+
     filters = {
         "end_year": list(set([str(d.get("end_year")) for d in local_data if d.get("end_year")])),
         "topic": list(set([d.get("topic") for d in local_data if d.get("topic")])),

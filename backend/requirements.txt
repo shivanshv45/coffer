@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-supabase
+pymongo
 python-dotenv
 pandas
 pydantic
