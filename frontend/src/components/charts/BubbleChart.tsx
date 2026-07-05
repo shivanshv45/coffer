@@ -19,7 +19,7 @@ export default function BubbleChart({ data, theme }: { data: any[], theme?: stri
       children: Array.from(regionData, ([name, value]) => ({ name, value }))
     };
 
-    const root = d3.hierarchy(hierarchyData)
+    const root = d3.hierarchy<any>(hierarchyData)
       .sum(d => d.value)
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
@@ -41,13 +41,15 @@ export default function BubbleChart({ data, theme }: { data: any[], theme?: stri
       tooltip = d3.select("body").append("div").attr("class", "d3-tooltip");
     }
 
+    const leaves: any[] = root.leaves();
+
     const leaf = svg.selectAll("g")
-      .data(root.leaves())
+      .data(leaves)
       .join("g")
       .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
     const color = d3.scaleOrdinal()
-      .domain(root.leaves().map(d => d.data.name))
+      .domain(leaves.map(d => d.data.name))
       .range(["var(--card-dark)", "var(--card-green)", "var(--card-purple)", "#EAECE8", "#A3A3A3"]);
 
     leaf.append("rect")
