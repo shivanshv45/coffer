@@ -3,9 +3,9 @@ import React, { useMemo } from 'react';
 import BarChart from './charts/BarChart';
 import ScatterPlot from './charts/ScatterPlot';
 import WorldMap from './charts/WorldMap';
-import { SearchX } from 'lucide-react';
+import { SearchX, Loader2 } from 'lucide-react';
 
-export default function Visualizations({ data }: { data: any[] }) {
+export default function Visualizations({ data, isLoading }: { data: any[], isLoading?: boolean }) {
   const totalRecords = data.length;
   const avgIntensity = useMemo(() => {
     if (!data.length) return 0;
@@ -18,6 +18,28 @@ export default function Visualizations({ data }: { data: any[] }) {
     const sum = data.reduce((acc, curr) => acc + (curr.relevance || 0), 0);
     return (sum / data.length).toFixed(1);
   }, [data]);
+
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '60vh',
+        background: 'var(--card-light)',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-soft)',
+        color: 'var(--text-dark)',
+      }}>
+        <Loader2 size={48} color="var(--card-purple)" style={{ animation: 'spin 2s linear infinite', marginBottom: '1rem' }} />
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600 }}>Analyzing Geopolitical Data...</h3>
+        <style>{`
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+        `}</style>
+      </div>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (

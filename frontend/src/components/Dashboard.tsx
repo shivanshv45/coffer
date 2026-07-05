@@ -9,10 +9,10 @@ export default function Dashboard() {
   const [data, setData] = useState([]);
   const [filterOptions, setFilterOptions] = useState<any>({});
   const [filters, setFilters] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     fetchFilterOptions();
-    fetchData();
   }, []);
 
   useEffect(() => {
@@ -29,12 +29,15 @@ export default function Dashboard() {
   };
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const queryParams = new URLSearchParams(filters).toString();
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'https://precious-love-production-11e2.up.railway.app'}/api/data?${queryParams}`);
       setData(res.data);
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -50,7 +53,7 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="main-content">
-        <Visualizations data={data} />
+        <Visualizations data={data} isLoading={isLoading} />
       </div>
       <Chat filters={filters} hasData={data.length > 0} />
     </div>
